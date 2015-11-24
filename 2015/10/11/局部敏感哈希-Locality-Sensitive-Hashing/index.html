@@ -1,0 +1,627 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>局部敏感哈希(Locality Sensitive Hashing) | 一路绝尘</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="L1Xiao">
+    
+
+    
+    <meta name="description" content="比较不同的文章、图片啊什么的是否相似，如果一对一的比较，数据量大的话，以O($n^2$)的时间复杂度来看，计算量相当惊人。所以如果是找相同就好了，直接扔到一个hashmap中即可。这样就是O($n$)的复杂度了。不过相同的字符串一定会得到相同的hash，而不同的字符串，哪怕只有一点点不同，也极可能得到完全不同hash。很自然的想到，要是相似的object能够得到相似的hash就好了。局部敏感哈希就">
+<meta property="og:type" content="article">
+<meta property="og:title" content="局部敏感哈希(Locality Sensitive Hashing)">
+<meta property="og:url" content="http://yoursite.com/2015/10/11/局部敏感哈希-Locality-Sensitive-Hashing/index.html">
+<meta property="og:site_name" content="一路绝尘">
+<meta property="og:description" content="比较不同的文章、图片啊什么的是否相似，如果一对一的比较，数据量大的话，以O($n^2$)的时间复杂度来看，计算量相当惊人。所以如果是找相同就好了，直接扔到一个hashmap中即可。这样就是O($n$)的复杂度了。不过相同的字符串一定会得到相同的hash，而不同的字符串，哪怕只有一点点不同，也极可能得到完全不同hash。很自然的想到，要是相似的object能够得到相似的hash就好了。局部敏感哈希就">
+<meta property="og:image" content="http://yoursite.com/image/sim.png">
+<meta property="og:image" content="http://yoursite.com/image/minhash.png">
+<meta property="og:image" content="http://yoursite.com/image/curve.png">
+<meta property="og:updated_time" content="2015-11-21T03:57:16.077Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="局部敏感哈希(Locality Sensitive Hashing)">
+<meta name="twitter:description" content="比较不同的文章、图片啊什么的是否相似，如果一对一的比较，数据量大的话，以O($n^2$)的时间复杂度来看，计算量相当惊人。所以如果是找相同就好了，直接扔到一个hashmap中即可。这样就是O($n$)的复杂度了。不过相同的字符串一定会得到相同的hash，而不同的字符串，哪怕只有一点点不同，也极可能得到完全不同hash。很自然的想到，要是相似的object能够得到相似的hash就好了。局部敏感哈希就">
+
+    
+    <link rel="alternative" href="/atom.xml" title="一路绝尘" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="一路绝尘" title="一路绝尘"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="一路绝尘">一路绝尘</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/10/11/局部敏感哈希-Locality-Sensitive-Hashing/" title="局部敏感哈希(Locality Sensitive Hashing)" itemprop="url">局部敏感哈希(Locality Sensitive Hashing)</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="L1Xiao" target="_blank" itemprop="author">L1Xiao</a>
+		
+  <p class="article-time">
+    <time datetime="2015-10-11T10:48:25.000Z" itemprop="datePublished"> 发表于 2015-10-11</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#<!-more->"><span class="toc-number">1.</span> <span class="toc-text"></span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#定义相似"><span class="toc-number">1.1.</span> <span class="toc-text">定义相似</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#寻找相似的关键三步"><span class="toc-number">1.2.</span> <span class="toc-text">寻找相似的关键三步</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Shingling"><span class="toc-number">1.2.1.</span> <span class="toc-text">Shingling</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MinHashing"><span class="toc-number">1.2.2.</span> <span class="toc-text">MinHashing</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#相似矩阵"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">相似矩阵</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#MinHashing-1"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">MinHashing</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Locality_Sensitive_Hashing"><span class="toc-number">1.2.3.</span> <span class="toc-text">Locality Sensitive Hashing</span></a></li></ol></li></ol></li></ol>
+		
+		</div>
+		
+		<p>比较不同的文章、图片啊什么的是否相似，如果一对一的比较，数据量大的话，以O($n^2$)的时间复杂度来看，计算量相当惊人。所以如果是找相同就好了，直接扔到一个hashmap中即可。这样就是O($n$)的复杂度了。<br>不过相同的字符串一定会得到相同的hash，而不同的字符串，哪怕只有一点点不同，也极可能得到完全不同hash。很自然的想到，要是相似的object能够得到相似的hash就好了。局部敏感哈希就是这样的hash，实现了相似的object的hash也是相似的。</p>
+<h2 id="<!-more->"><a id="more"></a></h2><h3 id="定义相似">定义相似</h3><p>要找相似，首先是要定义什么事相似。对于高位空间中的相似，一般认为距离越近越相似。一般用Jaccard distance/similarity来描述：<br>$sim(C_{1},C_{2})=|C_{1} \cap C_{2}|/|C_{1} \cup C_{2}|$，$d(C_{1},C_{2})=1 - |C_{1} \cap C_{2}|/|C_{1} \cup C_{2}|$</p>
+<p><img src="/image/sim.png" alt="sim"></p>
+<p>例如，该图sim=4/11, d=1 - 4/11=7/11</p>
+<hr>
+<h3 id="寻找相似的关键三步">寻找相似的关键三步</h3><ol>
+<li>Shingling:把文档转化为集合</li>
+<li>MinHashing:把较大的集合转换为较短的签名，同时保留相似性</li>
+<li>Locality-sensitive-hashing:找出相似的signature，对应的pair既是要找的相似pair</li>
+</ol>
+<h4 id="Shingling">Shingling</h4><p>直接举例子说明：<br>k=2,$D_{1}$=abcab,那么2-shingles set:S($D_{1}$)={ab, bc, ca}<br>对于较长的<code>shingle</code>，可以将其hash，所以得到：h($D_{1}$)={1,5,7},<br>设$C_{1}$=$D_{1}$,那么对于$D_{2}$,他们的相似性为：$sim(C_{1},C_{2})=|C_{1} \cap C_{2}|/|C_{1} \cup C_{2}|$<br>一般来讲，k越大，相似性判断的就越准确，不过这样来判断相似性依旧效率低下，时间复杂度还是O($n^2$)(因为没有做任何的简化)</p>
+<h4 id="MinHashing">MinHashing</h4><h5 id="相似矩阵">相似矩阵</h5><p>在使用MinHashing之前，首先要将shingle set写成矩阵形式，看例子：<br>有5个document</p>
+<pre><code><span class="label">S1</span> abcabc
+<span class="label">S2</span> cbacba
+<span class="label">S3</span> acbaba
+<span class="label">S4</span> <span class="keyword">bcacab
+</span><span class="label">S5</span> <span class="keyword">bacbca </span> 
+</code></pre><p>那么他们的shingle set:</p>
+<pre><code><span class="label">abcabc</span> = {ab, <span class="keyword">bc, </span>ca, ab, <span class="keyword">bc},
+</span><span class="label">cbacba</span> = {cb, <span class="keyword">ba, </span>ac, cb, <span class="keyword">ba},
+</span><span class="label">acbaba</span> = {ac, cb, <span class="keyword">ba, </span>ab, <span class="keyword">ba},
+</span><span class="keyword">bcacab </span>= {<span class="keyword">bc, </span>ca, ac, ca, ab},
+<span class="keyword">bacbca </span>= {<span class="keyword">ba, </span>ac, cb, <span class="keyword">bc, </span>ca}
+</code></pre><p>将集合中出现过的shingle放入一个集合，并将其编号，由此可以得到一个矩阵。这个矩阵的行是shingle元素，列是文档</p>
+<table>
+<thead>
+<tr>
+<th>shingle</th>
+<th style="text-align:center">$C_{1}$</th>
+<th style="text-align:center">$C_{2}$</th>
+<th style="text-align:center">$C_{3}$</th>
+<th style="text-align:center">$C_{4}$</th>
+<th style="text-align:center">$C_{5}$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 (ab)</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td>1 (ac)</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td>2 (ba)</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td>3 (bc)</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td>4 (ca)</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td>5 (cb)</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">0</td>
+<td style="text-align:center">1</td>
+</tr>
+</tbody>
+</table>
+<p>实际上，真正的matrix会相当稀疏，不过有sim的公式可以知道，我们关注的是非零项，因此矩阵只保留那些非全零行。</p>
+<h5 id="MinHashing-1">MinHashing</h5><p>虽然将shingle set转换成了matrix，但实际上，运算量并没有减少<br>如果存在一个能够hash document，使每一列的C成为一个较小的signature h(C)。并且满足以下两个条件：</p>
+<ol>
+<li>h(c)足够小，使得可以放在RAM中</li>
+<li>sim($C_{1}$,$C_{2}$) =P(h($C_{1}$)=h($C_{2}$))<br>即在进行hash时，我们将最相似的对象hash到同一个bucket中</li>
+</ol>
+<p>因此，我们的目标是找到这样一个hash函数，使得</p>
+<ol>
+<li>如果sim($C_{1}$,$C_{2}$)很大，则h($C_{1}$)=h($C_{2}$)</li>
+<li>如果sim($C_{1}$,$C_{2}$)很小，则h($C_{1}$)$\neq $h($C_{2}$)</li>
+</ol>
+<p>很显然，hash function取决于我们如何选取相似的尺度。对于Jaccard similarity，这个hash function就是MinHashing<br>MinHashing定义：特征矩阵按行进行一个随机的排列后，第一个列值为1的行的行号<br>我们还是用接着上述的例子来说明，如果我们使用三个hash函数来生成随机排列：</p>
+<ul>
+<li>h1 = (2x + 1) mod 6  -&gt; 1 3 5 1 3 5</li>
+<li>h2 = (3x + 2) mod 6  -&gt; 2 5 2 5 2 5</li>
+<li>h3 = (5x + 2) mod 6  -&gt; 2 1 0 5 4 3</li>
+</ul>
+<p>x是shingle，hash后我们得到了新的排列。不过我们看到，如果hash函数选得不好，有些shingle就会无法出现。这里只有h3才是真正的重新排列（没有缺失）<br>根据这个重新的排列，我们按照定义找出每一个hash函数对应的最小hash值（特征矩阵按行进行一个随机的排列后，第一个列值为1的行的行号），我们可以得到一个hash的matrix：</p>
+<p><img src="/image/minhash.png" alt="matrix"></p>
+<p>根据random hash中的重新排序，我们可以找到对应的第一行为1的数值(MinHashing value)，填入MinHashing这个表格中，我们得到了<code>最小hash签名(MinHashing signature)</code><br>这里要注意的就是，由于random hash选取不够好，会使得出现重复的元素，这种情况情况下，按照从小到大来看即可。即h2只有2和5，先把2检查完，若没有1，才继续看5.</p>
+<p>但是，我们为什么可以这样做？为什么MinHash保留了相似性呢？因为两列的最小hash值就是这两列的Jaccard相似度的一个估计，换句话说，两列最小hash值同等的概率与其相似度相等，即P(h(Si)=h(Sj)) = sim(Si,Sj)简单证明下：<br>对于任意i, j两列，他们可能：</p>
+<ul>
+<li>都是1——有A行</li>
+<li>既有1，又有0——有B行</li>
+<li>都是0——有C行</li>
+</ul>
+<p>对于i, j的Jaccard similarity：<br>sim = A/B<br>那么对于MinHash来说, 由于是随机排列后：<br>两个最小hash值相等的概率是A/B<br>所以，算出了MinHash，并得到signature，原先的相似性也保留在了signature当中</p>
+<p>为什么我们需要MinHashing Signature呢？因为<a href="https://zh.wikipedia.org/wiki/%E4%B8%AD%E5%BF%83%E6%9E%81%E9%99%90%E5%AE%9A%E7%90%86" title="中心极限定理" target="_blank" rel="external">中心极限定理</a>。一次hash只是偶然，多次hash才能接近概率。这也是为什么我们用了h1,h2,h3三个hash函数。在实际应用中，会使用更多的hash函数</p>
+<p>可以发现，原先一个可能非常大的文章，被我们摘要成了一个签名矩阵，同时不同文章之间的相似性却保留下来了。</p>
+<h4 id="Locality_Sensitive_Hashing">Locality Sensitive Hashing</h4><p>我们的目标是：找到那些相似度至少为S的文档。一般来讲，会用一个hash function(x, y)来指出x和y是否相似</p>
+<p>思路是，对于最小哈希尺度</p>
+<ul>
+<li>签名矩阵的列被hash到很多buckets中</li>
+<li>进入相同bucket的一对说明他们是<code>candidate(备选)</code>的，是否是相似还需要未来进一步检查</li>
+</ul>
+<p>具体措施：将签名矩阵分为 b组，每组有r行，然后对每一组进行hash，如果两列的某一组的hash相同，则将其hash到同一个bucket，一般会有k个buckets(k 尽可能的大)。这些进入同一个bucket的列就是candidate pair(尽管可能只有一个组相同)。但是那些完全没有相同的组，一定是不相似的，基于此，进行剪枝。</p>
+<p>对于候选相似项我们知道对于某一具体的行，两个签名相同的概率p =两列的相似度= sim(S1,S2)，那么我们可以计算：</p>
+<ul>
+<li>在某个组中所有行的两个签名值都相等概率是$p^r$;</li>
+<li>在某个组中至少有一对签名不相等的概率是$1-p^r$;</li>
+<li>在每一组中至少有一对签名不相等的概率是$(1-p^r)^b$;</li>
+<li>至少有一个组的所有对的签名相等的概率是$1-(1-p^r)^b$;</li>
+</ul>
+<p>举例来说明：</p>
+<ul>
+<li>假设有10w个文档，M = 100000</li>
+<li>签名有100个integers组成(100个random hash 函数)，合计40Mb=100*10w*4byte</li>
+<li>b=20,r=5</li>
+<li>寻找那些相似性至少在0.8以上的文档</li>
+</ul>
+<p>sim(C1,C2) = 0.8意味着任意一组中每行两列(C1,C2)相同的概率是0.8，r=5,那么这一组完全相同的概率是:$0.8^5=0.328$<br>那么对于所有的组b=20来说，两列不相似的概率是：$(1 - 0.328)^20 = 0.00035$,所以可以说两列99.965%都是相似的<br>同理也可证明，相似度为30%的是真的不相似，它们相似的概率只有0.0475</p>
+<p>因此我们看到，如果80%的组都被hash到同一个bucket中，那这两列的相似度为0.8，而真正可能相似的概率则为99.965%。这就是局部敏感hash，保证了相似的文档始终会被hash到同一个bucket中。</p>
+<p>另外就是，b和r的取值会导致相似曲线的变化，理想中的相似曲线应该是：</p>
+<p><img src="/image/curve.png" alt="curve"></p>
+<p>可以想象一下，如果b和r都取1，那么红线应该是一条斜率为1的直线<br>这根红线实际上是至少有一个组的所有对的签名相等的概率：$1 - (1 - t^r)^b$,t是相似度 </p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://yoursite.com/2015/10/11/局部敏感哈希-Locality-Sensitive-Hashing/" data-title="局部敏感哈希(Locality Sensitive Hashing) | 一路绝尘" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/11/25/Algorithm-II-assignment-wordnet/" title="Algorithm II assignment wordnet">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Algorithm II assignment wordnet</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2015/10/01/Apriori算法实践/"  title="Apriori">
+ <strong>下一篇：</strong><br/> 
+ <span>Apriori
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/10/11/局部敏感哈希-Locality-Sensitive-Hashing/" data-title="局部敏感哈希(Locality Sensitive Hashing)" data-url="http://yoursite.com/2015/10/11/局部敏感哈希-Locality-Sensitive-Hashing/"></div>
+</section>
+
+
+<section id="comments" class="comment">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#<!-more->"><span class="toc-number">1.</span> <span class="toc-text"></span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#定义相似"><span class="toc-number">1.1.</span> <span class="toc-text">定义相似</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#寻找相似的关键三步"><span class="toc-number">1.2.</span> <span class="toc-text">寻找相似的关键三步</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Shingling"><span class="toc-number">1.2.1.</span> <span class="toc-text">Shingling</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MinHashing"><span class="toc-number">1.2.2.</span> <span class="toc-text">MinHashing</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#相似矩阵"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">相似矩阵</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#MinHashing-1"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">MinHashing</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Locality_Sensitive_Hashing"><span class="toc-number">1.2.3.</span> <span class="toc-text">Locality Sensitive Hashing</span></a></li></ol></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+
+  
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m L1Xiao. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/15290772109" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		
+		<a href="/about" target="_blank" title="L1Xiao">L1Xiao</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+        getSize();
+        if (myWidth >= 1024) {
+          c.click();
+        }
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"L1Xiao"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+<script type="text/javascript">
+
+var disqus_shortname = 'L1Xiao';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

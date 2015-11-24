@@ -1,0 +1,517 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Apriori | 一路绝尘</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="L1Xiao">
+    
+
+    
+    <meta name="description" content="最近在学大数据这门课，课上讲到了一个关于尿布与啤酒的故事，说是发现在超市中尿布如果和啤酒放在一起能跟提高销量，原因是买尿布的多是父亲，这些人看到啤酒后就想买（这是什么逻辑）。当然，这个故事被证明是虚构的了信息来源。
+不过这个故事引出了一个问题，如果在一群放在不同类目(baskets)中的物品(items)中寻找成对(pair)的物品，且物品在不同类目中出现了至少threshold次，那么应该怎样做">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apriori">
+<meta property="og:url" content="http://yoursite.com/2015/10/01/Apriori算法实践/index.html">
+<meta property="og:site_name" content="一路绝尘">
+<meta property="og:description" content="最近在学大数据这门课，课上讲到了一个关于尿布与啤酒的故事，说是发现在超市中尿布如果和啤酒放在一起能跟提高销量，原因是买尿布的多是父亲，这些人看到啤酒后就想买（这是什么逻辑）。当然，这个故事被证明是虚构的了信息来源。
+不过这个故事引出了一个问题，如果在一群放在不同类目(baskets)中的物品(items)中寻找成对(pair)的物品，且物品在不同类目中出现了至少threshold次，那么应该怎样做">
+<meta property="og:image" content="http://yoursite.com/image/sorrow.jpg">
+<meta property="og:image" content="http://yoursite.com/image/apriori.png">
+<meta property="og:updated_time" content="2015-11-21T03:57:47.310Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Apriori">
+<meta name="twitter:description" content="最近在学大数据这门课，课上讲到了一个关于尿布与啤酒的故事，说是发现在超市中尿布如果和啤酒放在一起能跟提高销量，原因是买尿布的多是父亲，这些人看到啤酒后就想买（这是什么逻辑）。当然，这个故事被证明是虚构的了信息来源。
+不过这个故事引出了一个问题，如果在一群放在不同类目(baskets)中的物品(items)中寻找成对(pair)的物品，且物品在不同类目中出现了至少threshold次，那么应该怎样做">
+
+    
+    <link rel="alternative" href="/atom.xml" title="一路绝尘" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="一路绝尘" title="一路绝尘"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="一路绝尘">一路绝尘</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/10/01/Apriori算法实践/" title="Apriori" itemprop="url">Apriori</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="L1Xiao" target="_blank" itemprop="author">L1Xiao</a>
+		
+  <p class="article-time">
+    <time datetime="2015-10-01T04:35:23.000Z" itemprop="datePublished"> 发表于 2015-10-01</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#<!-more->"><span class="toc-number">1.</span> <span class="toc-text"></span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是Apriori_算法"><span class="toc-number">1.1.</span> <span class="toc-text">什么是Apriori 算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#算法过程"><span class="toc-number">1.2.</span> <span class="toc-text">算法过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如果找的不是成对，而是n对物品(n-tuple)怎么办？"><span class="toc-number">1.3.</span> <span class="toc-text">如果找的不是成对，而是n对物品(n-tuple)怎么办？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实践"><span class="toc-number">1.4.</span> <span class="toc-text">实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#反思"><span class="toc-number">1.5.</span> <span class="toc-text">反思</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>最近在学大数据这门课，课上讲到了一个关于尿布与啤酒的故事，说是发现在超市中尿布如果和啤酒放在一起能跟提高销量，原因是买尿布的多是父亲，这些人看到啤酒后就想买（这是什么逻辑）。当然，这个故事被证明是虚构的了<a href="http://www.kdnuggets.com/news/2000/n13/23i.html" target="_blank" rel="external">信息来源</a>。</p>
+<p>不过这个故事引出了一个问题，如果在一群放在不同类目(baskets)中的物品(items)中寻找成对(pair)的物品，且物品在不同类目中出现了至少threshold次，那么应该怎样做是有效率（空间上）的呢？</p>
+<p>最naive的方法对于N个items，需要的操作数是 $O(n^2)$ 的时间复杂度，会生成n(n - 1)/2个pairs。问题是，如果物品数量很多呢？假如物品是商品（沃尔玛的商品类是100k的l量级）。<br>假设 $10^5$ items, 那么pairs的数量就是 $10^5(10^5 - 1)/2=5*10^9$。可以算下，如果每个pair用4-byte整数表示，总共需要 $2*10^{10}$ (20GB)内存…不过实验室的机器内存40G，这点东西还是存的下</p>
+<p>为了解决占用内存过大问题，引入了Aprior算法。</p>
+<h2 id="<!-more->"><a id="more"></a></h2><h3 id="什么是Apriori_算法">什么是Apriori 算法</h3><p>先看下<a href="https://zh.wikipedia.org/wiki/%E5%85%88%E9%AA%8C%E7%AE%97%E6%B3%95" target="_blank" rel="external">Wikipedia</a>的说明。先验算法（英语：Apriori algorithm）是关联式规则中的经典算法之一。在关联式规则中，一般对于给定的项目集合baskets（例如，零售交易集合，每个集合都列出的单个商品的购买信息），算法通常尝试在项目集合中找出至少有threshold个相同的子集。先验算法采用自底向上的处理方法，即频繁子集每次只扩展一个对象（该步骤被称为候选集产生），并且候选集由数据进行检验。当不再产生符合条件的扩展对象时，算法终止。</p>
+<p>看起来好简单的算法，很快就实现了，但是跑起来慢得要死…最开始的版本，跑了一个晚上也没有跑完数据，优化后的依然不行，经过再次优化,最终优化版本30s跑完，可是我错过了Assignment提交的deadline</p>
+<p><img src="/image/sorrow.jpg" alt="悲伤"></p>
+<hr>
+<h3 id="算法过程">算法过程</h3><p>简单讲，Aprior算法就是利用了单调性：如果一个集合I，I中的物品都至少出现了threshold次，那么任意I的子集，不可能出现的次数少于threshold次(threshold在这里是指一个门限值)。<br>反过来讲，如果一个物品i出现次数不到threshold，那么凡是包含了i的集合，都不可能出现超过threshold次。</p>
+<p>一般的实现思路是：</p>
+<ol>
+<li>读取所有baskets中的数据，并在内存中记录至少出现了s次的item</li>
+<li>重新读取baskets，并只记录那些成对且至少出现了s次的item</li>
+</ol>
+<p>这样需要的内存就是最常出现的items的平方了</p>
+<hr>
+<h3 id="如果找的不是成对，而是n对物品(n-tuple)怎么办？">如果找的不是成对，而是n对物品(n-tuple)怎么办？</h3><p>一图胜千言，$C_{i}$是备选i-tuple items，$L_{i}$是选出来合格的i-teple items，</p>
+<p><img src="/image/apriori.png" alt="apriori"></p>
+<p>该流程迭代到$C_{i}$为空为止</p>
+<hr>
+<h3 id="实践">实践</h3><p>有10000个basket，同时有10000个数，第i个basket里放的都是能够整除i的数，举个例子：$basket_{12}$ = ｛1，2，3，4，6，12｝。那么，在所有basket中出现过100次及以上的组合（长度至少3个数）有哪些？<br>举个例子：（1，2，4）在所有的basket中出现了超过100次，且长度为3个数，它是一个我们要的答案</p>
+<p>解决这个问题，我们按照上方提到的算法，先构造k-tuple,将其通过过滤器，获取符合条件的的k-tuple,然后再将k-tuple构造成(k+1)-tuple，再继续迭代即可。<br>举一个简单的例子：$C_1$={ {a}{b}{c}{d}{e} }=&gt;$L_{1}$={a,b,c,d} =&gt; $C_{2}$={ {a,b},{a,c},{a,d},{b,c},{b,d},{c,d} }=&gt;$L_{2}$={ {a,b},{a,c},{c,d} }=&gt;$C_{3}$={ {a,b,c},{a,c,d} }=&gt;$L_{3}$={ {a,b,c} }<br>实际上，在生成(k+1)-tuple， 和过滤器这一步，有很多细节。如果剪枝剪得不充分，就会时间复杂度特别高，运行起来极其耗时。<br>根据这个算法，我们需要一个这样的函数：<code>construct_filter(baskets_set, last_result, length)</code><br>这个函数的作用是，将candidate items输入，构造新的，长度为length的tuple，并对其过滤输出。其中baskets_set是我们要用于检查新tuple是否合格的源</p>
+<p>第一个问题，如何构造(k+1)-tuple?<br>我的解决方法是，从$C_{k}$中取出所有的元素，组成为一个set，记为element，然后遍历k-tuple和element, 这些k-tuple加上element中的元素，构成(k+1)-tuple。<br>第二个问题，如何过滤出现频率没有达到门限的(k+1)-tuple?<br>然后遍历整个basket，来检查(k+1)-tuple出现的次数是否超过了threshold。</p>
+<p>显然，这样的实现有个很大的问题，在过滤时要遍历整个baskets，不必要的计算使得运行时间几个小时都跑不完。根据Apriori，</p>
+<blockquote>
+<p>反过来讲，如果一个物品i出现次数不到threshold，那么凡是包含了i的集合，都不可能出现超过threshold次。</p>
+</blockquote>
+<p>这里应该剪枝，不应该遍历整个baskets，而应该遍历$C_{k}$中，各个元素出现过的的basket，这样每次要遍历的basket_set会越来越小，速度会有很大的提高。第一次改善，将所有element曾出现过的baskets存存到了baskets_set，验证的时候遍历baskets_set。不过这样依然要跑不知多少个小时。所以我又加强了一下剪枝，用了python的dict做了一个映射，每个被选取作为(k+1)-tuple的第k+1位数，都在dict中对应的曾出现过的basket。这样遍历时，只需要从dict找到要遍历的basket即可</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> atuple <span class="keyword">in</span> last_result:</span><br><span class="line">    <span class="comment"># shrinke the set</span></span><br><span class="line">    temp_set =  candidate_set - set(atuple)</span><br><span class="line">    <span class="comment"># construct new (k+1)tuple</span></span><br><span class="line">    temp_list = []</span><br><span class="line">    <span class="keyword">for</span> num <span class="keyword">in</span> temp_set:</span><br><span class="line">        <span class="comment"># make sure this tuple never checked before</span></span><br><span class="line">        temp_list = list(atuple)</span><br><span class="line">        temp_list.append(num)</span><br><span class="line">        temp_list.sort()</span><br><span class="line">        current_tuple = tuple(temp_list)</span><br><span class="line">        <span class="keyword">if</span> current_tuple <span class="keyword">not</span> <span class="keyword">in</span> history:</span><br><span class="line">            history.add(current_tuple)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="comment"># count the frequent via basket_set</span></span><br><span class="line">        <span class="comment"># find the source of num:source[num] is a set</span></span><br><span class="line">        temp_basket_set = set()</span><br><span class="line">        <span class="keyword">for</span> aset <span class="keyword">in</span> basket_set[atuple]:</span><br><span class="line">            <span class="keyword">if</span> num <span class="keyword">in</span> baskets[aset]:</span><br><span class="line">                temp_basket_set.add(aset)</span><br><span class="line">        <span class="keyword">if</span> len(temp_basket_set) &gt; threshold:</span><br><span class="line">            result.append(current_tuple)</span><br><span class="line">            new_basket_set[current_tuple] = temp_basket_set</span><br><span class="line">            print(<span class="string">"one answer:"</span> + str(current_tuple))</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="反思">反思</h3><p>在这次作业中，我耗费了大量时间，错过了deadline，存在以下问题：</p>
+<ol>
+<li>小看了这次assignment，在没用过python的情况下，又没有正确的分析算法的时间复杂度，导致了各种各样的小问题</li>
+<li>没有及时回顾课上内容，直接开始写代码</li>
+</ol>
+<p>总而言之，自己过于自信，在自己不熟悉的情况下没有敬畏之心，在自己没有构思好整体思路时直接处理细节，导致我在处理过程中跟无头苍蝇一样。</p>
+<p>通过这次作业，对python比较熟悉了，不得不说，python的api设计的很符合人的直觉，set的运算也非常好用。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://yoursite.com/2015/10/01/Apriori算法实践/" data-title="Apriori | 一路绝尘" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2015/10/11/局部敏感哈希-Locality-Sensitive-Hashing/" title="局部敏感哈希(Locality Sensitive Hashing)">
+  <strong>上一篇：</strong><br/>
+  <span>
+  局部敏感哈希(Locality Sensitive Hashing)</span>
+</a>
+</div>
+
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/10/01/Apriori算法实践/" data-title="Apriori" data-url="http://yoursite.com/2015/10/01/Apriori算法实践/"></div>
+</section>
+
+
+<section id="comments" class="comment">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#<!-more->"><span class="toc-number">1.</span> <span class="toc-text"></span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是Apriori_算法"><span class="toc-number">1.1.</span> <span class="toc-text">什么是Apriori 算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#算法过程"><span class="toc-number">1.2.</span> <span class="toc-text">算法过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如果找的不是成对，而是n对物品(n-tuple)怎么办？"><span class="toc-number">1.3.</span> <span class="toc-text">如果找的不是成对，而是n对物品(n-tuple)怎么办？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实践"><span class="toc-number">1.4.</span> <span class="toc-text">实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#反思"><span class="toc-number">1.5.</span> <span class="toc-text">反思</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+
+  
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m L1Xiao. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/15290772109" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		
+		<a href="/about" target="_blank" title="L1Xiao">L1Xiao</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+        getSize();
+        if (myWidth >= 1024) {
+          c.click();
+        }
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"L1Xiao"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+<script type="text/javascript">
+
+var disqus_shortname = 'L1Xiao';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>

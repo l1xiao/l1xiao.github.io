@@ -1,0 +1,562 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Algorithm II assignment wordnet | 一路绝尘</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="L1Xiao">
+    
+
+    
+    <meta name="description" content="##Algorithm II assignment wordnet
+
+这周的作业花费了远超我预期的时间，非常不甘心，到后面为了快点ac也不顾代码写的好不好了，只要能满分就行了。这其中暴露了一个问题是，我还是一个面向debug(debug orientation)编程的程序员.
+
+先确认前条件/不变式/终止条件/边界条件，然后写出正确的代码
+先编写代码，然后通过各种用例/测试/调试对程序进行调整，最">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Algorithm II assignment wordnet">
+<meta property="og:url" content="http://yoursite.com/2015/11/25/Algorithm-II-assignment-wordnet/index.html">
+<meta property="og:site_name" content="一路绝尘">
+<meta property="og:description" content="##Algorithm II assignment wordnet
+
+这周的作业花费了远超我预期的时间，非常不甘心，到后面为了快点ac也不顾代码写的好不好了，只要能满分就行了。这其中暴露了一个问题是，我还是一个面向debug(debug orientation)编程的程序员.
+
+先确认前条件/不变式/终止条件/边界条件，然后写出正确的代码
+先编写代码，然后通过各种用例/测试/调试对程序进行调整，最">
+<meta property="og:image" content="http://yoursite.com/image/queue.png">
+<meta property="og:updated_time" content="2015-11-24T17:09:14.803Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Algorithm II assignment wordnet">
+<meta name="twitter:description" content="##Algorithm II assignment wordnet
+
+这周的作业花费了远超我预期的时间，非常不甘心，到后面为了快点ac也不顾代码写的好不好了，只要能满分就行了。这其中暴露了一个问题是，我还是一个面向debug(debug orientation)编程的程序员.
+
+先确认前条件/不变式/终止条件/边界条件，然后写出正确的代码
+先编写代码，然后通过各种用例/测试/调试对程序进行调整，最">
+
+    
+    <link rel="alternative" href="/atom.xml" title="一路绝尘" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="一路绝尘" title="一路绝尘"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="一路绝尘">一路绝尘</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/about">About</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:yoursite.com">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2015/11/25/Algorithm-II-assignment-wordnet/" title="Algorithm II assignment wordnet" itemprop="url">Algorithm II assignment wordnet</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="L1Xiao" target="_blank" itemprop="author">L1Xiao</a>
+		
+  <p class="article-time">
+    <time datetime="2015-11-24T17:06:58.000Z" itemprop="datePublished"> 发表于 2015-11-25</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			
+		
+		</div>
+		
+		<p>##Algorithm II assignment wordnet</p>
+<hr>
+<p>这周的作业花费了远超我预期的时间，非常不甘心，到后面为了快点ac也不顾代码写的好不好了，只要能满分就行了。这其中暴露了一个问题是，我还是一个面向debug(debug orientation)编程的程序员.</p>
+<blockquote>
+<p>先确认前条件/不变式/终止条件/边界条件，然后写出正确的代码</p>
+<p>先编写代码，然后通过各种用例/测试/调试对程序进行调整，最后得到似乎正确的代码</p>
+<p>我个人保守估计前者开发效率至少是后者的 10 倍，因为前者不需要浪费大量时间在 编码-调试-编码 这个极其耗时的循环上。<br>——Penggong</p>
+</blockquote>
+<p>没错，我现在就是第二种。</p>
+<p>我在网上也看到了别人的这一次作业，从这一次我就不贴大段代码了，这篇博客主要有两个目的</p>
+<ol>
+<li>借此机会对自己进行一次code review(还是会针对代码分析，但是不会贴代码了)</li>
+<li>分析自己为什么是debug orientation</li>
+</ol>
+<a id="more"></a>
+<hr>
+<p>这次题目我花了好久才搞清楚想让干什么。这不是重点，具体参照<a href="http://coursera.cs.princeton.edu/algs4/assignments/wordnet.html" target="_blank" rel="external">description</a></p>
+<p>简而言之，就是在图中找到任意两个给定点的最早公共祖先。其实这个题和一道leetcode题特别像，但是那道题是对于<code>tree</code>来讲，简化了很多。这道题是任意给一个图都要实现。</p>
+<p>问题给了三个类的api</p>
+<ul>
+<li>wordnet, 对于<code>DAG(Directed acyclic graph)</code>, 对任意两个noun给出<code>length</code>和<code>ancestor</code></li>
+<li>sap, 对于任意的<code>Graph</code>, 对任意两个<code>iterable</code>的id数据结构，查找这两个数据结构的最短<code>length</code>和<code>ancestor</code></li>
+<li>outcast要提供计算outcast的方法</li>
+</ul>
+<p>这里的<code>length</code>和<code>ancestor</code>都是指最短路径情况下，需要注意的是一个noun可能对应多个id，只是sap用<code>iterable</code>作为argument的原因</p>
+<p>知道了这三个类，显然要从sap先写起，然后wordnet可以使用sap。寻找两个点的ancestor思路非常简单，就是分别BFS，并将遍历过的点保存到集合中。<del>当两者遍历过的点的集合有交集时，就说明找到了最短路径的祖先啦。</del></p>
+<p>就在这里，我犯下第一个错</p>
+<blockquote>
+<p>当两者遍历过的点的集合有交集时，就说明找到了最短路径的祖先啦。</p>
+</blockquote>
+<p>事实并不是这样，因为会有一种情况向下面这样…</p>
+<p>1-&gt;2-&gt;3-&gt;4-&gt;5-&gt;9</p>
+<p>6-&gt;7-&gt;8-&gt;9-&gt;2</p>
+<p>1和6如果走1-2-9-8-7-6只要5步，而走1-2-3-4-5-9-8-7-6需要8步。显然要第一种情况，但是我想当然的认为，第一次出现交集时，<code>length</code>是最短的。到现在，我还觉得，我的想法是符合直觉的。究其原因，我想是我对图这个数据结构不够了解。在这点上这个问题我只会犯这一次。但是，对于我不了解的知识，或者说直觉，如果我不能够证明他，我就不应该使用这样的方法，因为直觉只能起导向作用，而不是当作证明的结论来用。这是我犯这个错误的根本原因。</p>
+<p>那么如何实现这个DFS呢？大多数人都使用了课程提供的工具类DFS，并加以修改（增加了标记遍历过点的方法）。不过我并没有这样，我的思路是动手实现了这个DFS。每一层的遍历，我都记录下来是当前遍历的深度，并将遍历过的点存到一个点集中。那么问题来了，如何记录每一层的遍历呢？<br>用这种方式即可：</p>
+<p><img src="/image/queue.png" alt="queue"></p>
+<p>很好，问题是，我只考虑了主要情况，没有考虑到具体实现上的很多corner case，常见的corner case：</p>
+<ul>
+<li><p>程序何时停止</p>
+<ul>
+<li>两个队都空了，正常结束，只有一个根，找到结果</li>
+<li>两个队都空了，正常结束，多个根，可能找不到结果 </li>
+<li>有环，两个队列必须侦测到环，并在遍历完所有节点后结束</li>
+</ul>
+</li>
+<li><p>如何对一个节点遍历</p>
+<ul>
+<li>队直接就是空的——遍历完了</li>
+<li>该节点没有邻居——是根节点</li>
+<li>该节点有邻居，且邻居set中没有这些邻居——要放入set中</li>
+<li>该节点有邻居，但是邻居set中已经有该邻居——有环</li>
+<li>该节点出现在邻居set中——有环，同时应该在这前一步就发现有环</li>
+<li>该节点是-1——当前层已遍历完</li>
+</ul>
+</li>
+<li><p>遍历完一层后，如何更新层的状态</p>
+<ul>
+<li>如果队列不为空，且队首是-1——上一层遍历完了</li>
+<li>deque, 如果队空了，什么都不做——这个节点已经遍历完了</li>
+<li>deque, 如果队不空，depth + 1，enqueue(-1)——更新层的位置</li>
+</ul>
+</li>
+</ul>
+<p>这些细节就是我主要犯错误的地方。大致一分类，就可以看出其实还是比较清晰的，基于对BFS的理解，来维护两个队。基于对Graph的了解，来判断有环，有几个根等等。</p>
+<p>我犯了这些错误</p>
+<ul>
+<li>知识掌握不够牢固，图的性质，BFS的使用</li>
+<li>动手coding前，没有按照分类将问题的各种边界情况，终止条件考虑清楚，所以我才各种出bug</li>
+</ul>
+<p>这次花了2天时间，才通过了所有的测试用例，下次assignment动手之前一定要想好各种可能，减少debug的点。</p>
+<p>稍微开了下脑洞，这道题实际上使用一个队也可以实现，就是用两个标识符来隔离队列中的层即可，不过并不能节省空间，作用也不是很大。相反会引入很多麻烦（如一点先遍历完了等等）</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://yoursite.com/2015/11/25/Algorithm-II-assignment-wordnet/" data-title="Algorithm II assignment wordnet | 一路绝尘" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2015/10/11/局部敏感哈希-Locality-Sensitive-Hashing/"  title="局部敏感哈希(Locality Sensitive Hashing)">
+ <strong>下一篇：</strong><br/> 
+ <span>局部敏感哈希(Locality Sensitive Hashing)
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2015/11/25/Algorithm-II-assignment-wordnet/" data-title="Algorithm II assignment wordnet" data-url="http://yoursite.com/2015/11/25/Algorithm-II-assignment-wordnet/"></div>
+</section>
+
+
+<section id="comments" class="comment">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ 
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+
+  
+
+  
+
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m L1Xiao. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/15290772109" target="_blank" class="icon-weibo" title="微博"></a>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2015 
+		
+		<a href="/about" target="_blank" title="L1Xiao">L1Xiao</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+        getSize();
+        if (myWidth >= 1024) {
+          c.click();
+        }
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"L1Xiao"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+<script type="text/javascript">
+
+var disqus_shortname = 'L1Xiao';
+
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+(function(){
+  var dsq = document.createElement('script');
+  dsq.type = 'text/javascript';
+  dsq.async = true;
+  dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+}());
+</script>
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
