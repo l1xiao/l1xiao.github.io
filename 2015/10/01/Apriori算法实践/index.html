@@ -21,7 +21,7 @@
 不过这个故事引出了一个问题，如果在一群放在不同类目(baskets)中的物品(items)中寻找成对(pair)的物品，且物品在不同类目中出现了至少threshold次，那么应该怎样做">
 <meta property="og:image" content="http://yoursite.com/image/sorrow.jpg">
 <meta property="og:image" content="http://yoursite.com/image/apriori.png">
-<meta property="og:updated_time" content="2015-11-21T03:57:47.310Z">
+<meta property="og:updated_time" content="2015-11-24T17:17:14.170Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Apriori">
 <meta name="twitter:description" content="最近在学大数据这门课，课上讲到了一个关于尿布与啤酒的故事，说是发现在超市中尿布如果和啤酒放在一起能跟提高销量，原因是买尿布的多是父亲，这些人看到啤酒后就想买（这是什么逻辑）。当然，这个故事被证明是虚构的了信息来源。
@@ -101,15 +101,16 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#<!-more->"><span class="toc-number">1.</span> <span class="toc-text"></span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是Apriori_算法"><span class="toc-number">1.1.</span> <span class="toc-text">什么是Apriori 算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#算法过程"><span class="toc-number">1.2.</span> <span class="toc-text">算法过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如果找的不是成对，而是n对物品(n-tuple)怎么办？"><span class="toc-number">1.3.</span> <span class="toc-text">如果找的不是成对，而是n对物品(n-tuple)怎么办？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实践"><span class="toc-number">1.4.</span> <span class="toc-text">实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#反思"><span class="toc-number">1.5.</span> <span class="toc-text">反思</span></a></li></ol></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是Apriori_算法"><span class="toc-number">1.</span> <span class="toc-text">什么是Apriori 算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#算法过程"><span class="toc-number">2.</span> <span class="toc-text">算法过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如果找的不是成对，而是n对物品(n-tuple)怎么办？"><span class="toc-number">3.</span> <span class="toc-text">如果找的不是成对，而是n对物品(n-tuple)怎么办？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实践"><span class="toc-number">4.</span> <span class="toc-text">实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#反思"><span class="toc-number">5.</span> <span class="toc-text">反思</span></a></li></ol>
 		
 		</div>
 		
 		<p>最近在学大数据这门课，课上讲到了一个关于尿布与啤酒的故事，说是发现在超市中尿布如果和啤酒放在一起能跟提高销量，原因是买尿布的多是父亲，这些人看到啤酒后就想买（这是什么逻辑）。当然，这个故事被证明是虚构的了<a href="http://www.kdnuggets.com/news/2000/n13/23i.html" target="_blank" rel="external">信息来源</a>。</p>
 <p>不过这个故事引出了一个问题，如果在一群放在不同类目(baskets)中的物品(items)中寻找成对(pair)的物品，且物品在不同类目中出现了至少threshold次，那么应该怎样做是有效率（空间上）的呢？</p>
 <p>最naive的方法对于N个items，需要的操作数是 $O(n^2)$ 的时间复杂度，会生成n(n - 1)/2个pairs。问题是，如果物品数量很多呢？假如物品是商品（沃尔玛的商品类是100k的l量级）。<br>假设 $10^5$ items, 那么pairs的数量就是 $10^5(10^5 - 1)/2=5*10^9$。可以算下，如果每个pair用4-byte整数表示，总共需要 $2*10^{10}$ (20GB)内存…不过实验室的机器内存40G，这点东西还是存的下</p>
-<p>为了解决占用内存过大问题，引入了Aprior算法。</p>
-<h2 id="<!-more->"><a id="more"></a></h2><h3 id="什么是Apriori_算法">什么是Apriori 算法</h3><p>先看下<a href="https://zh.wikipedia.org/wiki/%E5%85%88%E9%AA%8C%E7%AE%97%E6%B3%95" target="_blank" rel="external">Wikipedia</a>的说明。先验算法（英语：Apriori algorithm）是关联式规则中的经典算法之一。在关联式规则中，一般对于给定的项目集合baskets（例如，零售交易集合，每个集合都列出的单个商品的购买信息），算法通常尝试在项目集合中找出至少有threshold个相同的子集。先验算法采用自底向上的处理方法，即频繁子集每次只扩展一个对象（该步骤被称为候选集产生），并且候选集由数据进行检验。当不再产生符合条件的扩展对象时，算法终止。</p>
+<p>为了解决占用内存过大问题，引入了Aprior算法。<br><a id="more"></a></p>
+<hr>
+<h3 id="什么是Apriori_算法">什么是Apriori 算法</h3><p>先看下<a href="https://zh.wikipedia.org/wiki/%E5%85%88%E9%AA%8C%E7%AE%97%E6%B3%95" target="_blank" rel="external">Wikipedia</a>的说明。先验算法（英语：Apriori algorithm）是关联式规则中的经典算法之一。在关联式规则中，一般对于给定的项目集合baskets（例如，零售交易集合，每个集合都列出的单个商品的购买信息），算法通常尝试在项目集合中找出至少有threshold个相同的子集。先验算法采用自底向上的处理方法，即频繁子集每次只扩展一个对象（该步骤被称为候选集产生），并且候选集由数据进行检验。当不再产生符合条件的扩展对象时，算法终止。</p>
 <p>看起来好简单的算法，很快就实现了，但是跑起来慢得要死…最开始的版本，跑了一个晚上也没有跑完数据，优化后的依然不行，经过再次优化,最终优化版本30s跑完，可是我错过了Assignment提交的deadline</p>
 <p><img src="/image/sorrow.jpg" alt="悲伤"></p>
 <hr>
@@ -196,7 +197,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#<!-more->"><span class="toc-number">1.</span> <span class="toc-text"></span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是Apriori_算法"><span class="toc-number">1.1.</span> <span class="toc-text">什么是Apriori 算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#算法过程"><span class="toc-number">1.2.</span> <span class="toc-text">算法过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如果找的不是成对，而是n对物品(n-tuple)怎么办？"><span class="toc-number">1.3.</span> <span class="toc-text">如果找的不是成对，而是n对物品(n-tuple)怎么办？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实践"><span class="toc-number">1.4.</span> <span class="toc-text">实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#反思"><span class="toc-number">1.5.</span> <span class="toc-text">反思</span></a></li></ol></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是Apriori_算法"><span class="toc-number">1.</span> <span class="toc-text">什么是Apriori 算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#算法过程"><span class="toc-number">2.</span> <span class="toc-text">算法过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#如果找的不是成对，而是n对物品(n-tuple)怎么办？"><span class="toc-number">3.</span> <span class="toc-text">如果找的不是成对，而是n对物品(n-tuple)怎么办？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实践"><span class="toc-number">4.</span> <span class="toc-text">实践</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#反思"><span class="toc-number">5.</span> <span class="toc-text">反思</span></a></li></ol>
  
   </div>
 
